@@ -6,7 +6,7 @@ import json
 import zipfile
 
 from datetime import datetime, timedelta
-from add_func import export_to_csv, setCurDir, readConfigFile
+from add_func import export_to_csv, setCurDir, readConfigFile, convert_site_cell
 
 
 def setDfTraffic2gUme(ume):
@@ -106,7 +106,6 @@ def parsing_traffic():
     df_ume_puma = setDfTraffic2gUme("UME_PUMA")
     df_ume_kal = setDfTraffic2gUme("UME_KAL")
 
-    # df_result = pd.concat([df_ems5,df_ems6,df_ems7,df_ume_sul,df_ume_kal])
     df_result = pd.concat([df_ume_sul, df_ume_puma, df_ume_kal])
     df_result['primKey'] = df_result['CONTROLLERID'].astype(
         str)+df_result['SITEID'].astype(str)+df_result['CELLID'].astype(str)
@@ -145,30 +144,3 @@ def counting_traffic(item):
 
 # df_res = parsing_traffic()
 # print(df_res)
-
-# df = testing('poi_name')
-# print(df)
-# def test_func():
-# 	curdir = setCurDir()
-# 	delta_hour =  (datetime.today() - timedelta(hours=1,minutes=45))
-# 	curdate = (delta_hour).strftime('%Y-%m-%d')
-# 	last_quarter_minute = 15*(delta_hour.minute//15)
-# 	qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H:%M')
-# 	cur_datetime = curdate +' '+ qtime
-
-# 	df_traffic = parsing_traffic()
-# 	df_traffic['datetime_id'] = cur_datetime
-# 	df_traffic['sitePrimKey'] = df_traffic['CONTROLLERID'].astype(str)+df_traffic['SITEID'].astype(str)
-# 	df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_site.csv')
-# 	df_data_poi['sitePrimKey'] = df_data_poi['CONTROLLER_NUM'].astype(str)+df_data_poi['SITE_NUM'].astype(str)
-# 	# return df_data_poi
-# 	df_merge = df_traffic.merge(df_data_poi,on='sitePrimKey',how='inner')
-# 	df_pivot = np.round(pd.pivot_table(df_merge,values='tch_traffic_erl',index=['datetime_id','NSA'],aggfunc=np.sum),2)
-# 	df_result = df_pivot.reset_index()
-# 	return df_result
-
-
-# # test_func()
-# df_res = test_func()
-# print(df_res)
-# export_to_csv(df_res,'tch_traffic_all.csv')
