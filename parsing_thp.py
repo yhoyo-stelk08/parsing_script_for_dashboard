@@ -84,7 +84,7 @@ def setDfThpUme(ume, band):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # method for preparing raw data
-        # preparing_dataframe(ume, band)
+        preparing_dataframe(ume, band)
 
         # set dataframe process
         for file in os.listdir(extract_to_dir):
@@ -249,7 +249,3 @@ def counting_throughput(item):
                             'thp_kbps', 'thp_mbps', 'thp_gbps'], index=['datetime_id', 'NSA'], aggfunc=np.max), 2)
     df_result = df_pivot.reset_index()
     return df_result
-
-
-df = parsing_thp()
-print(df)
