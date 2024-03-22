@@ -35,33 +35,42 @@ def preparing_dataframe(ume, band):
         os.remove(extract_to_dir+os.sep+file)
         # print(file)
 
-        # extract files from filedir
-        for file in list_file:
-            if band == "FDD":
-                if ume == "UME_SUL":
-                    zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_fdd_sul']
-                elif ume == "UME_PUMA":
-                    zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_fdd_puma']
-                elif ume == "UME_KAL":
-                    zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_fdd_kal']
-            else:
-                if ume == "UME_SUL":
-                    zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_tdd_sul']
-                elif ume == "UME_PUMA":
-                    zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_tdd_puma']
-                elif ume == "UME_KAL":
-                    zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_tdd_kal']
-            # print(filedatetime)
-            pattern = zipFileName+'_'+filedatetime
-            # print(pattern)
-            result = re.search(pattern+'.+', file)
-            if result:
-                # print(result.group(0))
-                filename = result.group(0)
-                print('Extracting file '+filename)
-                with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
-                    zip_ref.extractall(extract_to_dir+os.sep)
-                    print("File "+filename+" telah di extract ke "+extract_to_dir)
+    # extract files from filedir
+    for file in list_file:
+        if band == "FDD":
+            if ume == "UME_SUL":
+                zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_fdd_sul']
+            elif ume == "UME_PUMA":
+                zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_fdd_puma']
+            elif ume == "UME_KAL":
+                zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_fdd_kal']
+        else:
+            if ume == "UME_SUL":
+                zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_tdd_sul']
+            elif ume == "UME_PUMA":
+                zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_tdd_puma']
+            elif ume == "UME_KAL":
+                zipFileName = config_data['SRC_UME']['Thp4G'][0]['prefix_fname_tdd_kal']
+        # print(filedatetime)
+        pattern = zipFileName+'_'+filedatetime
+        # print(pattern)
+        result = re.search(pattern+'.+', file)
+        if result:
+            # print(result.group(0))
+            filename = result.group(0)
+            print('Extracting file '+filename)
+            with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
+                zip_ref.extractall(extract_to_dir+os.sep)
+                print("File "+filename+" telah di extract ke "+extract_to_dir)
+
+    # delete unneeded files
+    for file in os.listdir(extract_to_dir):
+        result = re.search('.+kpis.+', file)
+        if result:
+            # print(result.group(0))
+            # delete file kpis in extract_to_dir
+            kpis_files = result.group(0)
+            os.remove(extract_to_dir+os.sep+kpis_files)
 
 
 def setDfThpUme(ume, band):
@@ -75,7 +84,7 @@ def setDfThpUme(ume, band):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # method for preparing raw data
-        preparing_dataframe(ume, band)
+        # preparing_dataframe(ume, band)
 
         # set dataframe process
         for file in os.listdir(extract_to_dir):
@@ -222,21 +231,25 @@ def counting_throughput(item):
 
     if item == "poi_name":
         df_pivot = np.round(pd.pivot_table(df_merge,
-                                            values=['thp_kbps',
-                                                    'thp_mbps',
-                                                    'thp_gbps',
-                                                    'POI_LONGITUDE',
-                                                    'POI_LATITUDE',],
-                                            index=['datetime_id', 'POI_NAME',],
-                                            aggfunc={
-                                                'thp_kbps': np.max,
-                                                'thp_mbps': np.max,
-                                                'thp_gbps': np.max,
-                                                'POI_LONGITUDE': 'first',
-                                                'POI_LATITUDE': 'first',
-                                            }), 2)
+                                           values=['thp_kbps',
+                                                   'thp_mbps',
+                                                   'thp_gbps',
+                                                   'POI_LONGITUDE',
+                                                   'POI_LATITUDE',],
+                                           index=['datetime_id', 'POI_NAME',],
+                                           aggfunc={
+                                               'thp_kbps': np.max,
+                                               'thp_mbps': np.max,
+                                               'thp_gbps': np.max,
+                                               'POI_LONGITUDE': 'first',
+                                               'POI_LATITUDE': 'first',
+                                           }), 2)
     else:
         df_pivot = np.round(pd.pivot_table(df_merge, values=[
                             'thp_kbps', 'thp_mbps', 'thp_gbps'], index=['datetime_id', 'NSA'], aggfunc=np.max), 2)
     df_result = df_pivot.reset_index()
     return df_result
+
+
+df = parsing_thp()
+print(df)
