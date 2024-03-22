@@ -8,44 +8,6 @@ import zipfile
 from datetime import datetime,timedelta
 from add_func import export_to_csv,setCurDir,readConfigFile
 
-def setDfThpEms(ems,band):
-	curdir = setCurDir()
-	if ems == "EMS5" :
-		curdate = (datetime.today() - timedelta(minutes=0)).strftime('%d%b%Y')
-	else :
-		curdate = (datetime.today() - timedelta(hours=1,minutes=30)).strftime('%d%b%Y')
-	file_dir = curdir+os.sep+ems+os.sep+"RAW"+os.sep+curdate+os.sep+"4G"+os.sep+band
-	list_file = os.listdir(file_dir)
-
-	for file in list_file :
-		result = re.search('.+CELLEXPTHRPUT_'+'.+',file)
-		if result :
-			# print(result.group(0))
-			filename = result.group(0)
-			df_res = pd.read_csv(file_dir+os.sep+filename)
-			df_res['tech'] = '4G '+band
-			df_res['OSS'] = ems
-			df_res['GRANULARITY'] = 900
-			df_res['thp_kbps'] = (df_res['C374107514']*1000+df_res['C374107515'])/(df_res['C374107516']/1000)
-			df_result = df_res[
-				[
-					'COLLECTTIME'
-					,'GRANULARITY'
-					,'SBNID'
-					,'ENODEBID'
-					,'CellID'
-					,'OSS'
-					,'tech'
-					,'thp_kbps'
-				]
-			]
-			df_result.rename(columns={
-				'SBNID' : 'CONTROLLERID'
-				,'ENODEBID' : 'SITEID'
-				,'CellID' : 'CELLID'
-			},inplace=True)
-			return df_result
-
 def setDfThpUme(ume,band):
 	curdir = setCurDir()
 	config_data = readConfigFile()
@@ -253,12 +215,6 @@ def setDfThpUme(ume,band):
 	# df_result['availability'] = df_result['availability'].str.rstrip('%').astype('float')/100
 	return df_result
 
-def joining_df_4g_ems(ems):
-	df_fdd = setDfThpEms(ems,"FDD")
-	df_tdd = setDfThpEms(ems,"TDD")
-	df_result = pd.concat([df_fdd,df_tdd])
-	df_result['primKey'] = df_result['CONTROLLERID'].astype(str)+df_result['SITEID'].astype(str)+df_result['CELLID'].astype(str)
-	return df_result
 
 def joining_df_4g_ume(ume):
 	df_fdd = setDfThpUme(ume,"FDD")
