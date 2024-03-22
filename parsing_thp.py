@@ -2,7 +2,6 @@ import os
 import re
 import pandas as pd
 import numpy as np
-import json
 import zipfile
 
 from datetime import datetime, timedelta
@@ -76,7 +75,7 @@ def setDfThpUme(ume, band):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # method for preparing raw data
-        # preparing_dataframe(ume, band)
+        preparing_dataframe(ume, band)
 
         # set dataframe process
         for file in os.listdir(extract_to_dir):
@@ -204,8 +203,6 @@ def counting_throughput(item):
 
     df_thp = parsing_thp()
     df_thp['datetime_id'] = cur_datetime
-    # df_thp['sitePrimKey'] = df_thp['CONTROLLERID'].astype(
-    #     str)+df_thp['SITEID'].astype(str)
     df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_site.csv')
 
     df_data_poi['CI'] = df_data_poi['CI'].apply(
@@ -217,54 +214,29 @@ def counting_throughput(item):
     # Drop duplicates in df_data_poi based on primKey
     df_data_poi.drop_duplicates(subset='primKey', keep='first', inplace=True)
 
-    # df_data_poi['sitePrimKey'] = df_data_poi['CONTROLLER_NUM'].astype(
-    #     str)+df_data_poi['SITE_NUM'].astype(str)
-
     # return df_data_poi
-    df_merge = df_thp.merge(df_data_poi, on='primKey', how='inner')
+    df_merge = df_thp.merge(df_data_poi, on='primKey', how='left')
 
     df_merge['thp_mbps'] = df_merge['thp_kbps']/1000
     df_merge['thp_gbps'] = df_merge['thp_mbps']/1000
 
     if item == "poi_name":
-        df_pivot = np.round(pd.pivot_table(df_merge, values=['thp_kbps', 'thp_mbps', 'thp_gbps'], index=[
-                            'datetime_id', 'POI_NAME', 'POI_LONGITUDE', 'POI_LATITUDE'], aggfunc=np.max), 2)
+        df_pivot = np.round(pd.pivot_table(df_merge,
+                                            values=['thp_kbps',
+                                                    'thp_mbps',
+                                                    'thp_gbps',
+                                                    'POI_LONGITUDE',
+                                                    'POI_LATITUDE',],
+                                            index=['datetime_id', 'POI_NAME',],
+                                            aggfunc={
+                                                'thp_kbps': np.max,
+                                                'thp_mbps': np.max,
+                                                'thp_gbps': np.max,
+                                                'POI_LONGITUDE': 'first',
+                                                'POI_LATITUDE': 'first',
+                                            }), 2)
     else:
         df_pivot = np.round(pd.pivot_table(df_merge, values=[
                             'thp_kbps', 'thp_mbps', 'thp_gbps'], index=['datetime_id', 'NSA'], aggfunc=np.max), 2)
     df_result = df_pivot.reset_index()
     return df_result
-
-
-def testing(item):
-    curdir = setCurDir()
-    # delta_hour =  (datetime.today() - timedelta(hours=1,minutes=45))
-    delta_hour = (datetime.today() - timedelta(minutes=0))
-    curdate = (delta_hour).strftime('%Y-%m-%d')
-    last_quarter_minute = 15*(delta_hour.minute//15)
-    qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H:%M')
-    cur_datetime = curdate + ' ' + qtime
-
-    df_thp = parsing_thp()
-    df_thp['datetime_id'] = cur_datetime
-    df_thp['sitePrimKey'] = df_thp['CONTROLLERID'].astype(
-        str)+df_thp['SITEID'].astype(str)
-    df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_site.csv')
-    df_data_poi['sitePrimKey'] = df_data_poi['CONTROLLER_NUM'].astype(
-        str)+df_data_poi['SITE_NUM'].astype(str)
-    # return df_data_poi
-    df_merge = df_thp.merge(df_data_poi, on='sitePrimKey', how='inner')
-    df_merge['thp_mbps'] = df_merge['thp_kbps']/1000
-    df_merge['thp_gbps'] = df_merge['thp_mbps']/1000
-    if item == "poi_name":
-        df_pivot = np.round(pd.pivot_table(df_merge, values=['thp_kbps', 'thp_mbps', 'thp_gbps'], index=[
-                            'datetime_id', 'POI_NAME', 'POI_LONGITUDE', 'POI_LATITUDE'], aggfunc=np.max), 2)
-    else:
-        df_pivot = np.round(pd.pivot_table(df_merge, values=[
-                            'thp_kbps', 'thp_mbps', 'thp_gbps'], index=['datetime_id', 'NSA'], aggfunc=np.max), 2)
-    df_result = df_pivot.reset_index()
-    return df_result
-
-df = parsing_thp()
-print(df)
-# export_to_csv(df,'all_thp.csv')
