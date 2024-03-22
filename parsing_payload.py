@@ -148,7 +148,7 @@ def setDfPayload2gUme(ume):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # method for preparing raw data
-        # preparing_for_df_payload2g(ume)
+        preparing_for_df_payload2g(ume)
 
         # set dataframe process
         for file in os.listdir(data_dir):
@@ -206,7 +206,7 @@ def setDfPayload4gUme(ume, band):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # method for preparing raw data
-        # preparing_for_df_payload4g(ume, band)
+        preparing_for_df_payload4g(ume, band)
 
         # set dataframe process
         for file in os.listdir(data_dir):
