@@ -114,127 +114,6 @@ def setDfPayload2gUme(ume):
     return df_result
 
 
-def setDfPayload3gUme(ume):
-    curdir = setCurDir()
-    config_data = readConfigFile()
-
-    dirdate = (datetime.today() - timedelta(hours=1,
-               minutes=25)).strftime('%Y-%m-%d')
-    delta_hour = (datetime.today() - timedelta(hours=1, minutes=25))
-    filedate = (delta_hour).strftime('%Y%m%d')
-    last_quarter_minute = 15*(delta_hour.minute//15)
-    qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H%M')
-    filedatetime = filedate + qtime
-
-    filedir = config_data['SRC_UME']['Payload3G'][0]['src_dir'] + \
-        os.sep + dirdate
-    extract_to_dir = curdir+os.sep+ume+os.sep + \
-        'Trf_Thp_Paging_Avail_Pyld'+os.sep+'3G'
-
-    df_result = pd.DataFrame()
-
-    if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
-        # change directory to filedir directory
-        os.chdir(filedir)
-        # list all files inside filedir directory
-        list_file = os.listdir(filedir)
-
-        # delete all files under dir band
-        for file in os.listdir(extract_to_dir):
-            # shutil.rmtree(file)
-            os.remove(extract_to_dir+os.sep+file)
-            # print(file)
-
-        # extract files from filedir
-        for file in list_file:
-            if ume == "UME_SUL":
-                zipFileName = config_data['SRC_UME']['Payload3G'][0]['prefix_fname_sul']
-            elif ume == "UME_PUMA":
-                zipFileName = config_data['SRC_UME']['Payload2G'][0]['prefix_fname_puma']
-            else:
-                zipFileName = config_data['SRC_UME']['Payload3G'][0]['prefix_fname_kal']
-            # print(filedatetime)
-            pattern = zipFileName+'_'+filedatetime
-            # print(filename)
-            result = re.search(pattern+'.+', file)
-            if result:
-                # print(result.group(0))
-                filename = result.group(0)
-                print('Extracting file '+filename)
-                with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
-                    zip_ref.extractall(extract_to_dir+os.sep)
-                    print("File "+filename+" telah di extract ke "+extract_to_dir)
-
-        # delete unneeded files
-        for file in os.listdir(extract_to_dir):
-            result = re.search('.+kpis.+', file)
-            if result:
-                # print(result.group(0))
-                # delete file kpis in extract_to_dir
-                kpis_files = result.group(0)
-                os.remove(extract_to_dir+os.sep+kpis_files)
-
-        # set dataframe process
-        for file in os.listdir(extract_to_dir):
-            # print(file)
-            df_res = pd.read_csv(extract_to_dir+os.sep+file, thousands=',')
-            df_res['GRANULARITY'] = 900
-            df_res['tech'] = '3G'
-            df_res['OSS'] = ume
-            # set COLLECTTIME
-            df_res['DATE'] = df_res['Begin Time'].str[0:10]
-            df_res['TIME'] = df_res['Begin Time'].str[11:16]
-            df_res['TANGGAL'] = (pd.to_datetime(
-                df_res['DATE'], format='%Y-%m-%d')).dt.strftime('%Y%m%d')
-            df_res['JAM'] = (pd.to_datetime(
-                df_res['TIME'], format='%H:%M')).dt.strftime('%H%M')
-            df_res['COLLECTTIME'] = df_res['TANGGAL'].astype(
-                str) + df_res['JAM'].astype(str)
-
-            # print(df_res['COLLECTTIME'])
-            if ume == "UME_SUL":
-                # df_res['HSDPA Payload (Mbyte) NFJ-TSEL'] = df_res['HSDPA Payload (Mbyte) NFJ-TSEL'].str.replace(',','').astype(float)
-                df_res['payload_mbyte'] = df_res['KPI 3G PS Payload (Mbyte)'] + df_res['HSDPA Payload (Mbyte) NFJ-TSEL'] + \
-                    df_res['HSUPA Payload (Mbyte) NFJ_1520165243750-3']
-                df_result = df_res[
-                    [
-                        'COLLECTTIME', 'GRANULARITY', 'SubnetWork ID', 'NodeB ID', 'Cell ID', 'OSS', 'tech', 'payload_mbyte'
-                    ]
-                ]
-                df_result.rename(columns={
-                    'SubnetWork ID': 'CONTROLLERID', 'NodeB ID': 'SITEID', 'Cell ID': 'CELLID'
-                }, inplace=True)
-            elif ume == "UME_PUMA":
-                # df_res['HSDPA Payload (Mbyte) NFJ-TSEL'] = df_res['HSDPA Payload (Mbyte) NFJ-TSEL'].str.replace(',','').astype(float)
-                df_res['payload_mbyte'] = df_res['KPI 3G PS Payload (Mbyte)'] + df_res['HSDPA Payload (Mbyte) NFJ-TSEL'] + \
-                    df_res['HSUPA Payload (Mbyte) NFJ_1520165243750-3']
-                df_result = df_res[
-                    [
-                        'COLLECTTIME', 'GRANULARITY', 'SubnetWork ID', 'NodeB ID', 'Cell ID', 'OSS', 'tech', 'payload_mbyte'
-                    ]
-                ]
-                df_result.rename(columns={
-                    'SubnetWork ID': 'CONTROLLERID', 'NodeB ID': 'SITEID', 'Cell ID': 'CELLID'
-                }, inplace=True)
-            elif ume == "UME_KAL":
-                # df_res['HSDPA Payload (Mbyte) NFJ-TSEL_1638262476066'] = df_res['HSDPA Payload (Mbyte) NFJ-TSEL_1638262476066'].str.replace(',','').astype(float)
-                df_res['payload_mbyte'] = df_res['KPI 3G PS Payload (Mbyte)'] + df_res['HSDPA Payload (Mbyte) NFJ-TSEL_1638262476066'] + \
-                    df_res['HSUPA Payload (Mbyte) NFJ_1520165243750-3_1638262476243']
-                df_result = df_res[
-                    [
-                        'COLLECTTIME', 'GRANULARITY', 'SubnetWork ID', 'NodeB ID', 'Cell ID', 'OSS', 'tech', 'payload_mbyte'
-                    ]
-                ]
-                df_result.rename(columns={
-                    'SubnetWork ID': 'CONTROLLERID', 'NodeB ID': 'SITEID', 'Cell ID': 'CELLID'
-                }, inplace=True)
-    else:
-        print('Enter either UME_SUL or UME_KAL or UME_PUMA')
-
-    # df_result['availability'] = df_result['availability'].str.rstrip('%').astype('float')/100
-    return df_result
-
-
 def setDfPayload4gUme(ume, band):
     curdir = setCurDir()
     config_data = readConfigFile()
@@ -389,26 +268,20 @@ def setDfPayload4gUme(ume, band):
     return df_result
 
 
-def joining_df_2g3g4gUme(ume):
+def joining_df_2g4gUme(ume):
     df_pyld_2g = setDfPayload2gUme(ume)
-    # df_pyld_3g = setDfPayload3gUme(ume) # no more 3G
     df_pyld_fdd = setDfPayload4gUme(ume, "FDD")
     df_pyld_tdd = setDfPayload4gUme(ume, "TDD")
 
-    # df_result = pd.concat([df_pyld_2g,df_pyld_3g,df_pyld_fdd,df_pyld_tdd])
     df_result = pd.concat([df_pyld_2g, df_pyld_fdd, df_pyld_tdd])
 
     return df_result
 
 
 def parsing_payload():
-    # no more EMS
-    # df_ems5 = joining_df_2g3g4gEms("EMS5")
-    # df_ems6 = joining_df_2g3g4gEms("EMS6")
-    # df_ems7 = joining_df_2g3g4gEms("EMS7")
-    df_ume_sul = joining_df_2g3g4gUme("UME_SUL")
-    df_ume_kal = joining_df_2g3g4gUme("UME_KAL")
-    df_ume_puma = joining_df_2g3g4gUme("UME_PUMA")
+    df_ume_sul = joining_df_2g4gUme("UME_SUL")
+    df_ume_kal = joining_df_2g4gUme("UME_KAL")
+    df_ume_puma = joining_df_2g4gUme("UME_PUMA")
     # df_result = df_ems5
     df_result = pd.concat([df_ume_puma, df_ume_sul, df_ume_kal])
     df_result['primKey'] = df_result['CONTROLLERID'].astype(
