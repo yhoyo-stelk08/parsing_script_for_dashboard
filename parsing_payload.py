@@ -13,7 +13,7 @@ def preparing_for_df_payload2g(ume):
     curdir = setCurDir()
     config_data = readConfigFile()
     dirdate = (datetime.today() - timedelta(hours=1,
-                                            minutes=25)).strftime('%Y-%m-%d')
+                minutes=25)).strftime('%Y-%m-%d')
     delta_hour = (datetime.today() - timedelta(hours=1, minutes=25))
     filedate = (delta_hour).strftime('%Y%m%d')
     last_quarter_minute = 15*(delta_hour.minute//15)
@@ -74,7 +74,6 @@ def preparing_for_df_payload2g(ume):
 def preparing_for_df_payload4g(ume, band):
     curdir = setCurDir()
     config_data = readConfigFile()
-
     dirdate = (datetime.today() - timedelta(hours=1,
                minutes=25)).strftime('%Y-%m-%d')
     delta_hour = (datetime.today() - timedelta(hours=1, minutes=25))
@@ -365,7 +364,7 @@ def counting_payload(item):
                                       'payload_gbyte': np.sum,
                                       'POI_LONGITUDE': 'first',
                                       'POI_LATITUDE': 'first',
-                                      }
+                                  }
                                   )
     elif item == "poi_location":
         df_pivot = pd.pivot_table(df_merge, values='payload_gbyte', index=[
