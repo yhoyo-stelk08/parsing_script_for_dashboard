@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from add_func import export_to_csv, setCurDir, readConfigFile, convert_site_cell
 
 
-def setDfTraffic2gUme(ume):
+def processing_raw_data(ume):
     curdir = setCurDir()
     config_data = readConfigFile()
 
@@ -26,48 +26,58 @@ def setDfTraffic2gUme(ume):
     extract_to_dir = curdir+os.sep+ume+os.sep + \
         'Trf_Thp_Paging_Avail_Pyld'+os.sep+'2G'
 
+    # change directory to filedir directory
+    os.chdir(filedir)
+    # list all files inside filedir directory
+    list_file = os.listdir(filedir)
+
+    # delete all files under dir
+    for file in os.listdir(extract_to_dir):
+        # shutil.rmtree(file)
+        os.remove(extract_to_dir+os.sep+file)
+        # print(file)
+    # extract files from filedir
+    for file in list_file:
+        if ume == "UME_SUL":
+            zipFileName = config_data['SRC_UME']['Traffic2G'][0]['prefix_fname_sul']
+        elif ume == "UME_PUMA":
+            zipFileName = config_data['SRC_UME']['Traffic2G'][0]['prefix_fname_puma']
+        else:
+            zipFileName = config_data['SRC_UME']['Traffic2G'][0]['prefix_fname_kal']
+        # print(filedatetime)
+        pattern = zipFileName+'_'+filedatetime
+        # print(filename)
+        result = re.search(pattern+'.+', file)
+        if result:
+            # print(result.group(0))
+            filename = result.group(0)
+            print('Extracting file '+filename)
+            with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
+                zip_ref.extractall(extract_to_dir+os.sep)
+                print("File "+filename+" telah di extract ke "+extract_to_dir)
+
+    # delete unneeded files
+    for file in os.listdir(extract_to_dir):
+        result = re.search('.+kpis.+', file)
+        if result:
+            # print(result.group(0))
+            # delete file kpis in extract_to_dir
+            kpis_files = result.group(0)
+            os.remove(extract_to_dir+os.sep+kpis_files)
+
+
+def setDfTraffic2gUme(ume):
+    curdir = setCurDir()
+
+    extract_to_dir = curdir+os.sep+ume+os.sep + \
+        'Trf_Thp_Paging_Avail_Pyld'+os.sep+'2G'
+
     df_result = pd.DataFrame()
 
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
-        # change directory to filedir directory
-        os.chdir(filedir)
-        # list all files inside filedir directory
-        list_file = os.listdir(filedir)
 
-        # delete all files under dir band
-        for file in os.listdir(extract_to_dir):
-            # shutil.rmtree(file)
-            os.remove(extract_to_dir+os.sep+file)
-            # print(file)
-
-        # extract files from filedir
-        for file in list_file:
-            if ume == "UME_SUL":
-                zipFileName = config_data['SRC_UME']['Traffic2G'][0]['prefix_fname_sul']
-            elif ume == "UME_PUMA":
-                zipFileName = config_data['SRC_UME']['Traffic2G'][0]['prefix_fname_puma']
-            else:
-                zipFileName = config_data['SRC_UME']['Traffic2G'][0]['prefix_fname_kal']
-            # print(filedatetime)
-            pattern = zipFileName+'_'+filedatetime
-            # print(filename)
-            result = re.search(pattern+'.+', file)
-            if result:
-                # print(result.group(0))
-                filename = result.group(0)
-                print('Extracting file '+filename)
-                with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
-                    zip_ref.extractall(extract_to_dir+os.sep)
-                    print("File "+filename+" telah di extract ke "+extract_to_dir)
-
-        # delete unneeded files
-        for file in os.listdir(extract_to_dir):
-            result = re.search('.+kpis.+', file)
-            if result:
-                # print(result.group(0))
-                # delete file kpis in extract_to_dir
-                kpis_files = result.group(0)
-                os.remove(extract_to_dir+os.sep+kpis_files)
+        # processing raw data method
+        # processing_raw_data(ume)
 
         # set dataframe process
         for file in os.listdir(extract_to_dir):
