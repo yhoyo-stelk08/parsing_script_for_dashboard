@@ -142,11 +142,15 @@ def counting_traffic(item):
 
     df_traffic = parsing_traffic()
     df_traffic['datetime_id'] = cur_datetime
-    df_traffic['sitePrimKey'] = df_traffic['CONTROLLERID'].astype(
-        str)+df_traffic['SITEID'].astype(str)
+
     df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_site.csv')
-    df_data_poi['sitePrimKey'] = df_data_poi['CONTROLLER_NUM'].astype(
-        str)+df_data_poi['SITE_NUM'].astype(str)
+
+    df_data_poi['CI'] = df_data_poi['CI'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
+    df_data_poi['primKey'] = df_data_poi['CONTROLLER_NUM'].astype(
+        str) + df_data_poi['SITE_NUM'].astype(str) + df_data_poi['CI'].astype(str)
+
     # return df_data_poi
     df_merge = df_traffic.merge(df_data_poi, on='sitePrimKey', how='inner')
     if item == "poi_name":
