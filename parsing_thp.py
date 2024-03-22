@@ -49,7 +49,7 @@ def setDfThpEms(ems,band):
 def setDfThpUme(ume,band):
 	curdir = setCurDir()
 	config_data = readConfigFile()
-	
+
 	dirdate = (datetime.today() - timedelta(hours=1,minutes=25)).strftime('%Y-%m-%d')
 	delta_hour =  (datetime.today() - timedelta(hours=1,minutes=25))
 	filedate = (delta_hour).strftime('%Y%m%d')

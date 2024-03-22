@@ -317,8 +317,10 @@ def parsing_payload():
     df_result['SITEID'].fillna(0, inplace=True)
     df_result['CELLID'].fillna(0, inplace=True)
 
-    df_result['SITEID'] = df_result['SITEID'].apply(lambda x: convert_site_cell(x, 'Linux'))
-    df_result['CELLID'] = df_result['CELLID'].apply(lambda x: convert_site_cell(x, 'Linux'))
+    df_result['SITEID'] = df_result['SITEID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+    df_result['CELLID'] = df_result['CELLID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
 
     df_result['primKey'] = df_result['CONTROLLERID'].astype(
         str)+df_result['SITEID'].astype(str)+df_result['CELLID'].astype(str)
@@ -328,7 +330,6 @@ def parsing_payload():
 
 def counting_payload(item):
     curdir = setCurDir()
-    # delta_hour =  (datetime.today() - timedelta(hours=1,minutes=45))
     delta_hour = (datetime.today() - timedelta(minutes=0))
     curdate = (delta_hour).strftime('%Y-%m-%d')
     last_quarter_minute = 15*(delta_hour.minute//15)
@@ -337,26 +338,41 @@ def counting_payload(item):
 
     df_payload = parsing_payload()
     df_payload['datetime_id'] = cur_datetime
-    df_payload['sitePrimKey'] = df_payload['CONTROLLERID'].astype(
-        str)+df_payload['SITEID'].astype(str)
-    df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_site.csv')
-    df_data_poi['sitePrimKey'] = df_data_poi['CONTROLLER_NUM'].astype(
-        str)+df_data_poi['SITE_NUM'].astype(str)
-    # return df_data_poi
-    df_merge = df_payload.merge(df_data_poi, on='sitePrimKey', how='inner')
+
+    df_payload.drop_duplicates(subset='primKey', keep='first', inplace=True)
+
+    df_data_poi = pd.read_csv(curdir + os.sep + 'data_poi_site.csv')
+
+    df_data_poi['CI'] = df_data_poi['CI'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
+    df_data_poi['primKey'] = df_data_poi['CONTROLLER_NUM'].astype(
+        str) + df_data_poi['SITE_NUM'].astype(str) + df_data_poi['CI'].astype(str)
+
+    # Drop duplicates in df_data_poi based on primKey
+    df_data_poi.drop_duplicates(subset='primKey', keep='first', inplace=True)
+
+    df_merge = df_payload.merge(df_data_poi, on='primKey', how='inner')
     df_merge['payload_gbyte'] = np.round((df_merge['payload_mbyte'])/1000, 2)
+
     if item == "poi_name":
-        df_pivot = pd.pivot_table(df_merge, values='payload_gbyte', index=[
-                                  'datetime_id', 'POI_NAME', 'POI_LONGITUDE', 'POI_LATITUDE'], aggfunc=np.sum)
+        df_pivot = pd.pivot_table(df_merge,
+                                  values=['payload_gbyte',
+                                          'POI_LONGITUDE',
+                                          'POI_LATITUDE'],
+                                  index=['datetime_id', 'POI_NAME'],
+                                  aggfunc={
+                                      'payload_gbyte': np.sum,
+                                      'POI_LONGITUDE': 'first',
+                                      'POI_LATITUDE': 'first',
+                                      }
+                                  )
     elif item == "poi_location":
         df_pivot = pd.pivot_table(df_merge, values='payload_gbyte', index=[
                                   'datetime_id', 'POI_LOCATION'], aggfunc=np.sum)
     else:
         df_pivot = pd.pivot_table(df_merge, values='payload_gbyte', index=[
                                   'datetime_id', 'NSA'], aggfunc=np.sum)
+
     df_result = df_pivot.reset_index()
     return df_result
-
-
-df = parsing_payload()
-print(df.dtypes)

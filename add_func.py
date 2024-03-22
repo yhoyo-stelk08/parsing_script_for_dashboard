@@ -3,8 +3,6 @@ import json
 import pandas as pd
 
 # Define a function to convert SITEID and CELLID to int or float for Linux
-
-
 def convert_site_cell(column_value, platform):
     if platform == 'Linux':
         return int(float(column_value))
