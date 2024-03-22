@@ -8,53 +8,17 @@ import zipfile
 from datetime import datetime,timedelta
 from add_func import export_to_csv,setCurDir,readConfigFile
 
-def setDfPayload2gEms(ems):
-	curdir = setCurDir()
-	if ems == "EMS5" :
-		curdate = (datetime.today() - timedelta(minutes=0)).strftime('%d%b%Y')
-	else :
-		curdate = (datetime.today() - timedelta(hours=1,minutes=30)).strftime('%d%b%Y')
-	file_dir = curdir+os.sep+ems+os.sep+"RAW"+os.sep+curdate+os.sep+"2G"
-	list_file = os.listdir(file_dir)
-
-	for file in list_file :
-		result = re.search('.+ABSCCELLPSBASICMEAS'+'.+',file)
-		if result :
-			# print(result.group(0))
-			filename = result.group(0)
-			df_res = pd.read_csv(file_dir+os.sep+filename,thousands=',')
-			df_res['tech'] = '2G'
-			df_res['OSS'] = ems
-			df_res['payload_mbyte'] = (((df_res['C900040190'])*176+(df_res['C900040191'])*224+(df_res['C900040192'])*296+(df_res['C900040193'])*352+(df_res['C900040194'])*448+(df_res['C900040195'])*592+(df_res['C900040196'])*448+(df_res['C900040197'])*544+(df_res['C900040198'])*592)/1024/1024/8)+(((df_res['C900040217'])*176+(df_res['C900040218'])*224+(df_res['C900040219'])*296+(df_res['C900040220'])*352+(df_res['C900040221'])*448+(df_res['C900040222'])*592+(df_res['C900040223'])*448+(df_res['C900040224'])*544+(df_res['C900040225'])*592)/1024/1024/8)+(((df_res['C900040089']*160+df_res['C900040090']*240+df_res['C900040091']*288+df_res['C900040092']*400)+(df_res['C900040102']*160+df_res['C900040103']*240+df_res['C900040104']*288+df_res['C900040105']*400))/1024/1024/8)
-			df_result = df_res[
-				[
-					'COLLECTTIME'
-					,'GRANULARITY'
-					,'IBSCMEID'
-					,'SITEID'
-					,'BTSID'
-					,'OSS'
-					,'tech'
-					,'payload_mbyte'
-				]
-			]
-			df_result.rename(columns={
-				'IBSCMEID' : 'CONTROLLERID'
-				,'BTSID' : 'CELLID'
-			},inplace=True)
-			return df_result
-
 def setDfPayload2gUme(ume):
 	curdir = setCurDir()
 	config_data = readConfigFile()
-	
+
 	dirdate = (datetime.today() - timedelta(hours=1,minutes=25)).strftime('%Y-%m-%d')
 	delta_hour =  (datetime.today() - timedelta(hours=1,minutes=25))
 	filedate = (delta_hour).strftime('%Y%m%d')
 	last_quarter_minute = 15*(delta_hour.minute//15)
 	qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H%M')
 	filedatetime = filedate + qtime
-	
+
 	filedir = config_data['SRC_UME']['Payload2G'][0]['src_dir'] + os.sep + dirdate
 	extract_to_dir = curdir+os.sep+ume+os.sep+'Trf_Thp_Paging_Avail_Pyld'+os.sep+'2G'
 
@@ -71,7 +35,7 @@ def setDfPayload2gUme(ume):
 			# shutil.rmtree(file)
 			os.remove(extract_to_dir+os.sep+file)
 			# print(file)
-		
+
 		# extract files from filedir
 		for file in list_file :
 			if ume == "UME_SUL" :
@@ -100,7 +64,7 @@ def setDfPayload2gUme(ume):
 				# delete file kpis in extract_to_dir
 				kpis_files = result.group(0)
 				os.remove(extract_to_dir+os.sep+kpis_files)
-				
+
 		# set dataframe process
 		for file in os.listdir(extract_to_dir) :
 			# print(file)
@@ -156,106 +120,21 @@ def setDfPayload2gUme(ume):
 			# return df_res
 	else :
 		print('Enter either UME_SUL or UME_KAL or UME_PUMA')
-	
+
 	# df_result['availability'] = df_result['availability'].str.rstrip('%').astype('float')/100
-	return df_result
-
-def setDfPayload3gEms(ems):
-	curdir = setCurDir()
-	if ems == "EMS5" :
-		curdate = (datetime.today() - timedelta(minutes=0)).strftime('%d%b%Y')
-	else :
-		curdate = (datetime.today() - timedelta(hours=1,minutes=30)).strftime('%d%b%Y')
-	file_dir = curdir+os.sep+ems+os.sep+"RAW"+os.sep+curdate+os.sep+"3G"
-	list_file = os.listdir(file_dir)
-	df_res1 = pd.DataFrame()
-	df_res2 = pd.DataFrame()
-	for file in list_file :
-		result1 = re.search('.+AR9CELLFLUX'+'.+',file)
-		result2 = re.search('.+AR9CELLCOMMFLUX'+'.+',file)
-
-		if result1 :
-			# print(result1.group(0))
-			filename1 = result1.group(0)
-			df1 = pd.read_csv(file_dir+os.sep+filename1,thousands=',')
-			df_res1 = df1[
-				[
-					'COLLECTTIME'
-					,'GRANULARITY'
-					,'RNCID'
-					,'NODEBID'
-					,'OBJECTID'
-					,'C310010146'
-					,'C310010147'
-					,'C310010148'
-					,'C310010150'
-					,'C310010151'
-					,'C310010152'
-					,'C310010158'
-					,'C310010159'
-					,'C310010160'
-					,'C310010154'
-					,'C310010155'
-					,'C310010156'
-				]
-			]
-			df_res1['primKey'] = df_res1['RNCID'].astype(str)+df_res1['NODEBID'].astype(str)+df_res1['OBJECTID'].astype(str)
-	
-		if result2 :
-			# print(result2.group(0))
-			filename2 = result2.group(0)
-			df2 = pd.read_csv(file_dir+os.sep+filename2)
-			df_res2 = df2[
-				[
-					'COLLECTTIME'
-					,'GRANULARITY'
-					,'RNCID'
-					,'NODEBID'
-					,'OBJECTID'
-					,'C310053371'
-					,'C310053377'
-				]
-			]
-			df_res2['primKey'] = df_res2['RNCID'].astype(str)+df_res2['NODEBID'].astype(str)+df_res2['OBJECTID'].astype(str)
-		
-	df_merge = df_res1.merge(df_res2,on='primKey',how='inner')
-	df_merge.rename(columns={
-		'COLLECTTIME_x' : 'COLLECTTIME'
-		,'GRANULARITY_x' : 'GRANULARITY'
-		,'RNCID_x' : 'CONTROLLERID'
-		,'NODEBID_x' : 'SITEID'
-		,'OBJECTID_x' : 'CELLID'
-	},inplace=True)
-	df_merge.fillna('#N/A',inplace=True)
-	df_merge['payload_mbyte'] = ((df_merge['C310010146']+df_merge['C310010147']+df_merge['C310010148']+df_merge['C310053371']+df_merge['C310010150']+df_merge['C310010151']+df_merge['C310010152']+df_merge['C310053377'])+(df_merge['C310010158']+df_merge['C310010159']+df_merge['C310010160'])+(df_merge['C310010154']+df_merge['C310010155']+df_merge['C310010156']))/1024
-	df_merge['tech'] = '3G'
-	df_merge['OSS'] = ems
-	df_result = df_merge[
-		[
-			'COLLECTTIME'
-			,'GRANULARITY'
-			,'CONTROLLERID'
-			,'SITEID'
-			,'CELLID'
-			,'OSS'
-			,'tech'
-			,'payload_mbyte'
-		]
-	]
-
 	return df_result
 
 def setDfPayload3gUme(ume):
 	curdir = setCurDir()
 	config_data = readConfigFile()
-	
+
 	dirdate = (datetime.today() - timedelta(hours=1,minutes=25)).strftime('%Y-%m-%d')
 	delta_hour =  (datetime.today() - timedelta(hours=1,minutes=25))
 	filedate = (delta_hour).strftime('%Y%m%d')
 	last_quarter_minute = 15*(delta_hour.minute//15)
 	qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H%M')
 	filedatetime = filedate + qtime
-	
+
 	filedir = config_data['SRC_UME']['Payload3G'][0]['src_dir'] + os.sep + dirdate
 	extract_to_dir = curdir+os.sep+ume+os.sep+'Trf_Thp_Paging_Avail_Pyld'+os.sep+'3G'
 
@@ -272,7 +151,7 @@ def setDfPayload3gUme(ume):
 			# shutil.rmtree(file)
 			os.remove(extract_to_dir+os.sep+file)
 			# print(file)
-		
+
 		# extract files from filedir
 		for file in list_file :
 			if ume == "UME_SUL" :
@@ -383,55 +262,17 @@ def setDfPayload3gUme(ume):
 	# df_result['availability'] = df_result['availability'].str.rstrip('%').astype('float')/100
 	return df_result
 
-def setDfPayload4gEms(ems,band):
-	curdir = setCurDir()
-	if ems == "EMS5" :
-		curdate = (datetime.today() - timedelta(minutes=0)).strftime('%d%b%Y')
-	else :
-		curdate = (datetime.today() - timedelta(hours=1,minutes=30)).strftime('%d%b%Y')
-	file_dir = curdir+os.sep+ems+os.sep+"RAW"+os.sep+curdate+os.sep+"4G"+os.sep+band
-	list_file = os.listdir(file_dir)
-
-	for file in list_file :
-		result = re.search('.+CELLTHRPUT_'+'.+',file)
-		if result :
-			# print(result.group(0))
-			filename = result.group(0)
-			df_res = pd.read_csv(file_dir+os.sep+filename,thousands=',')
-			df_res['tech'] = '4G '+band
-			df_res['OSS'] = ems
-			df_res['GRANULARITY'] = 900
-			df_res['payload_mbyte'] = ((df_res['C373343806']*1000000+df_res['C373343807']*1000)/(8*1024*1024))+((df_res['C373343804']*1000000+df_res['C373343805']*1000)/(8*1024*1024))
-			df_result = df_res[
-				[
-					'COLLECTTIME'
-					,'GRANULARITY'
-					,'SBNID'
-					,'ENODEBID'
-					,'CellID'
-					,'OSS'
-					,'tech'
-					,'payload_mbyte'
-				]
-			]
-			df_result.rename(columns={
-				'SBNID' : 'CONTROLLERID'
-				,'ENODEBID' : 'SITEID'
-				,'CellID' : 'CELLID'
-			},inplace=True)
-			return df_result
-
 def setDfPayload4gUme(ume,band):
 	curdir = setCurDir()
 	config_data = readConfigFile()
-	
+
 	dirdate = (datetime.today() - timedelta(hours=1,minutes=25)).strftime('%Y-%m-%d')
 	delta_hour =  (datetime.today() - timedelta(hours=1,minutes=25))
 	filedate = (delta_hour).strftime('%Y%m%d')
 	last_quarter_minute = 15*(delta_hour.minute//15)
 	qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H%M')
 	filedatetime = filedate + qtime
-	
+
 	filedir = config_data['SRC_UME']['Payload4G'][0]['src_dir'] + os.sep + dirdate
 	extract_to_dir = curdir+os.sep+ume+os.sep+'Trf_Thp_Paging_Avail_Pyld'+os.sep+'4G'+os.sep+band
 
@@ -628,16 +469,6 @@ def setDfPayload4gUme(ume,band):
 	# df_result['payload_mbyte'] = df_result['payload_mbyte'].str.rstrip('%').astype('float')/100
 	return df_result
 
-def joining_df_2g3g4gEms(ems):
-	df_pyld_2g = setDfPayload2gEms(ems)
-	df_pyld_3g = setDfPayload3gEms(ems)
-	df_pyld_fdd = setDfPayload4gEms(ems,"FDD")
-	df_pyld_tdd = setDfPayload4gEms(ems,"TDD")
-
-	df_result = pd.concat([df_pyld_2g,df_pyld_3g,df_pyld_fdd,df_pyld_tdd])
-
-	return df_result
-
 def joining_df_2g3g4gUme(ume):
 	df_pyld_2g = setDfPayload2gUme(ume)
 	# df_pyld_3g = setDfPayload3gUme(ume) # no more 3G
@@ -684,7 +515,7 @@ def counting_payload(item):
 		df_pivot = pd.pivot_table(df_merge,values='payload_gbyte',index=['datetime_id','POI_NAME','POI_LONGITUDE','POI_LATITUDE'],aggfunc=np.sum)
 	elif item == "poi_location" :
 		df_pivot = pd.pivot_table(df_merge,values='payload_gbyte',index=['datetime_id','POI_LOCATION'],aggfunc=np.sum)
-	else : 
+	else :
 		df_pivot = pd.pivot_table(df_merge,values='payload_gbyte',index=['datetime_id','NSA'],aggfunc=np.sum)
 	df_result = df_pivot.reset_index()
 	return df_result
