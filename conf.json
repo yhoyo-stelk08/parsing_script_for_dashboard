@@ -1,0 +1,117 @@
+{
+	"NBI_EMS": {
+		"EMS5": [{
+			"ip_address": "10.174.44.182",
+			"port": 20002,
+			"username": "sysbak",
+			"password": "SysBak-123"
+		}],
+		"EMS6": [{
+			"ip_address": "10.166.13.153",
+			"port": 20002,
+			"username": "sysbak",
+			"password": "SysBak-123"
+		}],
+		"EMS7": [{
+			"ip_address": "10.54.28.133",
+			"port": 20002,
+			"username": "sysbak",
+			"password": "SysBak-123"
+		}]
+	},
+	"SRC_UME": {
+		"Traffic2G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_sul": "ZTE_BSS_Dashboard_2G_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_Dashboard_2G_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_Dashboard_2G_BOT_KAL"
+		}],
+		"Traffic3G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_sul": "ZTE_BSS_Dashboard_3G_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_Dashboard_3G_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_Dashboard_3G_BOT_KAL"
+		}],
+		"Paging2G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_sul": "ZTE_BSS_Dashboard_2G_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_Dashboard_2G_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_Dashboard_2G_BOT_KAL"
+		}],
+		"Paging3G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_sul": "ZTE_BSS_Dashboard_3G_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_Dashboard_3G_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_Dashboard_3G_BOT_KAL"
+		}],
+		"PortUtil2G3G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Util",
+			"prefix_fname_sul": "ZTE_BSS_2G_3G_INTERFACE_BOT_SUL_UME200",
+			"prefix_fname_puma": "ZTE_BSS_2G_3G_INTERFACE_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_2G_3G_INTERFACE_BOT_KAL"
+		}],
+		"CpuLoad4G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/CPU",
+			"prefix_fname_sul": "ZTE_BSS_4G_CPU_LOAD_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_4G_CPU_LOAD_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_4G_CPU_LOAD_BOT_KAL"
+		}],
+		"CpuLoad2G3G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/CPU",
+			"prefix_fname_sul": "ZTE_BSS_2G_3G_CPU_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_2G_3G_CPU_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_2G_3G_CPU_BOT_KAL"
+		}],
+		"Payload2G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_sul": "ZTE_BSS_Dashboard_2G_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_Dashboard_2G_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_Dashboard_2G_BOT_KAL"
+		}],
+		"Payload3G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_sul": "ZTE_BSS_Dashboard_3G_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_Dashboard_3G_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_Dashboard_3G_BOT_KAL"
+		}],
+		"Payload4G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_fdd_sul": "ZTE_BSS_Dashboard_4G_FDD_BOT_UME200",
+			"prefix_fname_tdd_sul": "ZTE_BSS_Dashboard_4G_TDD_BOT_UME200",
+			"prefix_fname_fdd_puma": "ZTE_BSS_Dashboard_4G_FDD_BOT_SUL",
+			"prefix_fname_tdd_puma": "ZTE_BSS_Dashboard_4G_TDD_BOT_SUL",
+			"prefix_fname_fdd_kal": "ZTE_BSS_Dashboard_4G_FDD_BOT_KAL",
+			"prefix_fname_tdd_kal": "ZTE_BSS_Dashboard_4G_TDD_BOT_KAL"
+		}],
+		"Avail2G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_sul": "ZTE_BSS_Dashboard_2G_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_Dashboard_2G_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_Dashboard_2G_BOT_KAL"
+		}],
+		"Avail3G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_sul": "ZTE_BSS_Dashboard_3G_BOT_UME200",
+			"prefix_fname_puma": "ZTE_BSS_Dashboard_3G_BOT_SUL",
+			"prefix_fname_kal": "ZTE_BSS_Dashboard_3G_BOT_KAL"
+		}],
+		"Avail4G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_fdd_sul" : "ZTE_BSS_Dashboard_4G_FDD_BOT_UME200",
+			"prefix_fname_tdd_sul" : "ZTE_BSS_Dashboard_4G_TDD_BOT_UME200",
+			"prefix_fname_fdd_puma": "ZTE_BSS_Dashboard_4G_FDD_BOT_SUL",
+			"prefix_fname_tdd_puma": "ZTE_BSS_Dashboard_4G_TDD_BOT_SUL",
+			"prefix_fname_fdd_kal": "ZTE_BSS_Dashboard_4G_FDD_BOT_KAL",
+			"prefix_fname_tdd_kal": "ZTE_BSS_Dashboard_4G_TDD_BOT_KAL"
+		}],
+		"Thp4G": [{
+			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
+			"prefix_fname_fdd_sul": "ZTE_BSS_Dashboard_4G_FDD_BOT_UME200",
+			"prefix_fname_tdd_sul": "ZTE_BSS_Dashboard_4G_TDD_BOT_UME200",
+			"prefix_fname_fdd_puma": "ZTE_BSS_Dashboard_4G_FDD_BOT_SUL",
+			"prefix_fname_tdd_puma": "ZTE_BSS_Dashboard_4G_TDD_BOT_SUL",
+			"prefix_fname_fdd_kal": "ZTE_BSS_Dashboard_4G_FDD_BOT_KAL",
+			"prefix_fname_tdd_kal": "ZTE_BSS_Dashboard_4G_TDD_BOT_KAL"
+		}]
+	}
+}
