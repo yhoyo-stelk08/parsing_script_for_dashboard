@@ -77,7 +77,7 @@ def setDfTraffic2gUme(ume):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # processing raw data method
-        # processing_raw_data(ume)
+        processing_raw_data(ume)
 
         # set dataframe process
         for file in os.listdir(extract_to_dir):
@@ -152,10 +152,19 @@ def counting_traffic(item):
         str) + df_data_poi['SITE_NUM'].astype(str) + df_data_poi['CI'].astype(str)
 
     # return df_data_poi
-    df_merge = df_traffic.merge(df_data_poi, on='sitePrimKey', how='inner')
+    df_merge = df_traffic.merge(df_data_poi, on='primKey', how='inner')
+
     if item == "poi_name":
-        df_pivot = np.round(pd.pivot_table(df_merge, values='tch_traffic_erl', index=[
-                            'datetime_id', 'POI_NAME', 'POI_LONGITUDE', 'POI_LATITUDE'], aggfunc=np.sum), 2)
+        df_pivot = np.round(pd.pivot_table(df_merge,
+                                            values=['tch_traffic_erl',
+                                                    'POI_LONGITUDE',
+                                                    'POI_LATITUDE'],
+                                            index=['datetime_id', 'POI_NAME',],
+                                            aggfunc={
+                                                'tch_traffic_erl': np.sum,
+                                                'POI_LONGITUDE': 'first',
+                                                'POI_LATITUDE': 'first',
+                                            }), 2)
     elif item == "poi_category":
         df_pivot = np.round(pd.pivot_table(df_merge, values='tch_traffic_erl', index=[
                             'datetime_id', 'POI_CATEGORY'], aggfunc=np.sum), 2)
@@ -164,6 +173,3 @@ def counting_traffic(item):
                             'datetime_id', 'NSA'], aggfunc=np.sum), 2)
     df_result = df_pivot.reset_index()
     return df_result
-
-df_res = parsing_traffic()
-print(df_res)
