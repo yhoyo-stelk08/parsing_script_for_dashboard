@@ -117,6 +117,15 @@ def parsing_traffic():
     df_ume_kal = setDfTraffic2gUme("UME_KAL")
 
     df_result = pd.concat([df_ume_sul, df_ume_puma, df_ume_kal])
+
+    df_result['SITEID'].fillna(0, inplace=True)
+    df_result['CELLID'].fillna(0, inplace=True)
+
+    df_result['SITEID'] = df_result['SITEID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+    df_result['CELLID'] = df_result['CELLID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
     df_result['primKey'] = df_result['CONTROLLERID'].astype(
         str)+df_result['SITEID'].astype(str)+df_result['CELLID'].astype(str)
     return df_result
@@ -152,5 +161,5 @@ def counting_traffic(item):
     df_result = df_pivot.reset_index()
     return df_result
 
-# df_res = parsing_traffic()
-# print(df_res)
+df_res = parsing_traffic()
+print(df_res)
