@@ -1,24 +1,4 @@
 {
-	"NBI_EMS": {
-		"EMS5": [{
-			"ip_address": "10.174.44.182",
-			"port": 20002,
-			"username": "sysbak",
-			"password": "SysBak-123"
-		}],
-		"EMS6": [{
-			"ip_address": "10.166.13.153",
-			"port": 20002,
-			"username": "sysbak",
-			"password": "SysBak-123"
-		}],
-		"EMS7": [{
-			"ip_address": "10.54.28.133",
-			"port": 20002,
-			"username": "sysbak",
-			"password": "SysBak-123"
-		}]
-	},
 	"SRC_UME": {
 		"Traffic2G": [{
 			"src_dir": "/home/zte_ftp/dashboard_naru2021/Availability",
