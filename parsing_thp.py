@@ -204,15 +204,28 @@ def counting_throughput(item):
 
     df_thp = parsing_thp()
     df_thp['datetime_id'] = cur_datetime
-    df_thp['sitePrimKey'] = df_thp['CONTROLLERID'].astype(
-        str)+df_thp['SITEID'].astype(str)
+    # df_thp['sitePrimKey'] = df_thp['CONTROLLERID'].astype(
+    #     str)+df_thp['SITEID'].astype(str)
     df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_site.csv')
-    df_data_poi['sitePrimKey'] = df_data_poi['CONTROLLER_NUM'].astype(
-        str)+df_data_poi['SITE_NUM'].astype(str)
+
+    df_data_poi['CI'] = df_data_poi['CI'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
+    df_data_poi['primKey'] = df_data_poi['CONTROLLER_NUM'].astype(
+        str) + df_data_poi['SITE_NUM'].astype(str) + df_data_poi['CI'].astype(str)
+
+    # Drop duplicates in df_data_poi based on primKey
+    df_data_poi.drop_duplicates(subset='primKey', keep='first', inplace=True)
+
+    # df_data_poi['sitePrimKey'] = df_data_poi['CONTROLLER_NUM'].astype(
+    #     str)+df_data_poi['SITE_NUM'].astype(str)
+
     # return df_data_poi
-    df_merge = df_thp.merge(df_data_poi, on='sitePrimKey', how='inner')
+    df_merge = df_thp.merge(df_data_poi, on='primKey', how='inner')
+
     df_merge['thp_mbps'] = df_merge['thp_kbps']/1000
     df_merge['thp_gbps'] = df_merge['thp_mbps']/1000
+
     if item == "poi_name":
         df_pivot = np.round(pd.pivot_table(df_merge, values=['thp_kbps', 'thp_mbps', 'thp_gbps'], index=[
                             'datetime_id', 'POI_NAME', 'POI_LONGITUDE', 'POI_LATITUDE'], aggfunc=np.max), 2)
