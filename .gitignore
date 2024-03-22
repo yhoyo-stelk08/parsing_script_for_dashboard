@@ -1,3 +1,9 @@
+# Local Directory
+csv_results/
+UME_KAL/
+UME_SUL/
+UME_PUMA/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
