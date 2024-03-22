@@ -1,8 +1,11 @@
-# Local Directory
+# Local Directory n files
 csv_results/
 UME_KAL/
 UME_SUL/
 UME_PUMA/
+active_alarm/
+*.csv
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
