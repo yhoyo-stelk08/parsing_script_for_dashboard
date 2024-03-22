@@ -6,7 +6,7 @@ import json
 import zipfile
 
 from datetime import datetime, timedelta
-from add_func import export_to_csv, setCurDir, readConfigFile
+from add_func import export_to_csv, setCurDir, readConfigFile, convert_site_cell
 
 
 def preparing_dataframe(ume, band):
@@ -76,7 +76,7 @@ def setDfThpUme(ume, band):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # method for preparing raw data
-        preparing_dataframe(ume, band)
+        # preparing_dataframe(ume, band)
 
         # set dataframe process
         for file in os.listdir(extract_to_dir):
@@ -179,6 +179,15 @@ def parsing_thp():
     df_ume_puma = joining_df_4g_ume("UME_PUMA")
     df_ume_kal = joining_df_4g_ume("UME_KAL")
     df_result = pd.concat([df_ume_puma, df_ume_sul, df_ume_kal])
+
+    df_result['SITEID'].fillna(0, inplace=True)
+    df_result['CELLID'].fillna(0, inplace=True)
+
+    df_result['SITEID'] = df_result['SITEID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+    df_result['CELLID'] = df_result['CELLID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
     df_result['primKey'] = df_result['CONTROLLERID'].astype(
         str)+df_result['SITEID'].astype(str)+df_result['CELLID'].astype(str)
     return df_result
