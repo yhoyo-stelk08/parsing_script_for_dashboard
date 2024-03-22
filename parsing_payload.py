@@ -134,9 +134,11 @@ def setDfPayload4gUme(ume, band):
     df_result = pd.DataFrame()
 
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
-        # change directory to filedir directory
+
+		# change directory to filedir directory
         os.chdir(filedir)
-        # list all files inside filedir directory
+
+		# list all files inside filedir directory
         list_file = os.listdir(filedir)
 
         # delete all files under dir band
@@ -182,6 +184,7 @@ def setDfPayload4gUme(ume, band):
                 kpis_files = result.group(0)
                 os.remove(extract_to_dir+os.sep+kpis_files)
 
+		# set dataframe process
         for file in os.listdir(extract_to_dir):
             # print(file)
             df_res = pd.read_csv(extract_to_dir+os.sep+file, thousands=",")
@@ -322,5 +325,5 @@ def counting_payload(item):
     return df_result
 
 
-df = setDfPayload2gUme("UME_PUMA")
+df = setDfPayload4gUme("UME_SUL","TDD")
 print(df)
