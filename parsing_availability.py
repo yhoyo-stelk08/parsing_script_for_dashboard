@@ -312,7 +312,7 @@ def joining_df_2g4gUme(ume):
 
 
 def counting_availability(item):
-    df_data_poi = pd.read_csv('data_poi_cell.csv')
+    df_data_poi = pd.read_csv('data_poi_site.csv')
 
     df_data_poi['CI'] = df_data_poi['CI'].apply(
         lambda x: convert_site_cell(x, 'Linux'))
@@ -335,8 +335,14 @@ def counting_availability(item):
 
     df_merge = df_availability.merge(df_data_poi, on='primKey', how='inner')
     if item == "poi_name":
-        df_pivot = np.round(pd.pivot_table(df_merge, values='availability', index=[
-            'POI_NAME', 'POI_LONGITUDE', 'POI_LATITUDE'], aggfunc=np.mean), 2)
+        df_pivot = np.round(pd.pivot_table(df_merge,
+                    values=['availability', 'POI_LONGITUDE', 'POI_LATITUDE', ],
+                    index=[ 'POI_NAME', ],
+                    aggfunc={
+                        'availability': np.mean,
+                        'POI_LONGITUDE': 'first',
+                        'POI_LATITUDE': 'first',
+                    }), 2)
     else:
         df_pivot = pd.pivot_table(df_merge, values='availability', index=[
             'NSA'], aggfunc=np.mean)
@@ -381,6 +387,5 @@ def parsing_availability():
     return df_result
 
 
-# df_res = setDfAvailability4gUme('UME_PUMA', 'FDD')
-df_res = parsing_availability()
+df_res = counting_availability('NSA')
 print(df_res)
