@@ -155,8 +155,16 @@ def counting_paging(item):
     # return df_data_poi
     df_merge = df_paging.merge(df_data_poi, on='primKey', how='inner')
     if item == "poi_name":
-        df_pivot = np.round(pd.pivot_table(df_merge, values=['paging'], index=[
-                            'POI_NAME', 'POI_LONGITUDE', 'POI_LATITUDE'], aggfunc=np.sum), 2)
+        df_pivot = np.round(pd.pivot_table(
+                                df_merge,
+                                values=['paging', 'POI_LONGITUDE', 'POI_LATITUDE'],
+                                index=[
+                                    'POI_NAME',],
+                                aggfunc={
+                                    'paging': np.sum,
+                                    'POI_LONGITUDE': 'first',
+                                    'POI_LATITUDE': 'first'
+                                }), 2)
     else:
         df_pivot = np.round(pd.pivot_table(
             df_merge, values=['paging'], index=['NSA'], aggfunc=np.sum), 2)
