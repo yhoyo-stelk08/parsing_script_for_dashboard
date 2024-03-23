@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from add_func import export_to_csv, setCurDir, readConfigFile, convert_site_cell
 
 
-def preparing_for_df_payload2g(ume):
+def processing_raw_data_2g(ume):
     curdir = setCurDir()
     config_data = readConfigFile()
     dirdate = (datetime.today() - timedelta(hours=1,
@@ -70,7 +70,7 @@ def preparing_for_df_payload2g(ume):
             os.remove(extract_to_dir+os.sep+kpis_files)
 
 
-def preparing_for_df_payload4g(ume, band):
+def processing_raw_data_4g(ume, band):
     curdir = setCurDir()
     config_data = readConfigFile()
     dirdate = (datetime.today() - timedelta(hours=1,
@@ -148,7 +148,7 @@ def setDfPayload2gUme(ume):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # method for preparing raw data
-        preparing_for_df_payload2g(ume)
+        processing_raw_data_2g(ume)
 
         # set dataframe process
         for file in os.listdir(data_dir):
@@ -206,7 +206,7 @@ def setDfPayload4gUme(ume, band):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # method for preparing raw data
-        preparing_for_df_payload4g(ume, band)
+        processing_raw_data_4g(ume, band)
 
         # set dataframe process
         for file in os.listdir(data_dir):
