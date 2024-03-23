@@ -2,11 +2,10 @@ import os
 import re
 import pandas as pd
 import numpy as np
-import json
 import zipfile
 
 from datetime import datetime, timedelta
-from add_func import export_to_csv, setCurDir, readConfigFile
+from add_func import export_to_csv, setCurDir, readConfigFile, convert_site_cell
 
 
 def processing_raw_data_2g(ume):
@@ -77,7 +76,6 @@ def processing_raw_data_4g(ume, band):
     last_quarter_minute = 15*(delta_hour.minute//15)
     qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H%M')
     filedatetime = filedate + qtime
-    current_date = datetime.today().strftime('%Y-%m-%d')
     filedir = config_data['SRC_UME']['Avail4G'][0]['src_dir'] + \
         os.sep + dirdate
     extract_to_dir = curdir+os.sep+ume+os.sep + \
@@ -314,11 +312,27 @@ def joining_df_2g4gUme(ume):
 
 
 def counting_availability(item):
-    curdir = setCurDir()
     df_data_poi = pd.read_csv('data_poi_cell.csv')
+
+    df_data_poi['CI'] = df_data_poi['CI'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
+    df_data_poi['primKey'] = df_data_poi['CONTROLLER_NUM'].astype(
+        str)+df_data_poi['SITE_NUM'].astype(str)+df_data_poi['CI'].astype(str)
+
     df_availability = parsing_availability()
+
+    df_availability['SITEID'].fillna(0, inplace=True)
+    df_availability['CELLID'].fillna(0, inplace=True)
+
+    df_availability['SITEID'] = df_availability['SITEID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+    df_availability['CELLID'] = df_availability['CELLID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
     df_availability['primKey'] = df_availability['CONTROLLERID'].astype(
         str)+df_availability['SITEID'].astype(str)+df_availability['CELLID'].astype(str)
+
     df_merge = df_availability.merge(df_data_poi, on='primKey', how='inner')
     if item == "poi_name":
         df_pivot = np.round(pd.pivot_table(df_merge, values='availability', index=[
@@ -335,12 +349,27 @@ def counting_availability(item):
 def parsing_availability():
     curdir = setCurDir()
     df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_cell.csv', thousands=',')
+
+    df_data_poi['CI'] = df_data_poi['CI'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
     df_data_poi['primKey'] = df_data_poi['CONTROLLER_NUM'].astype(
         str)+df_data_poi['SITE_NUM'].astype(str)+df_data_poi['CI'].astype(str)
+
+
     df_ume_sul = joining_df_2g4gUme("UME_SUL")
     df_ume_kal = joining_df_2g4gUme("UME_KAL")
     df_ume_puma = joining_df_2g4gUme("UME_PUMA")
     df_concat = pd.concat([df_ume_sul, df_ume_kal, df_ume_puma])
+
+    df_result['SITEID'].fillna(0, inplace=True)
+    df_result['CELLID'].fillna(0, inplace=True)
+
+    df_result['SITEID'] = df_result['SITEID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+    df_result['CELLID'] = df_result['CELLID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
     df_concat['primKey'] = df_concat['CONTROLLERID'].astype(
         str)+df_concat['SITEID'].astype(str)+df_concat['CELLID'].astype(str)
     df_merge = df_concat.merge(df_data_poi, on='primKey', how='inner')
