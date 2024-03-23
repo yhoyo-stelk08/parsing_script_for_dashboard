@@ -1,3 +1,4 @@
+from concurrent.futures import process
 import os
 import re
 import pandas as pd
@@ -8,7 +9,7 @@ from datetime import datetime, timedelta
 from add_func import export_to_csv, setCurDir, readConfigFile
 
 
-def setDfCpuLoad2gUme(ume):
+def processing_raw_data_2g(ume):
     curdir = setCurDir()
     config_data = readConfigFile()
 
@@ -24,53 +25,121 @@ def setDfCpuLoad2gUme(ume):
         os.sep + dirdate
     extract_to_dir = curdir+os.sep+ume+os.sep+'Cpu'+os.sep+'2G3G'
 
+    # change directory to filedir directory
+    os.chdir(filedir)
+    # list all files inside filedir directory
+    list_file = os.listdir(filedir)
+
+    # delete all files under dir band
+    for file in os.listdir(extract_to_dir):
+        # shutil.rmtree(file)
+        os.remove(extract_to_dir+os.sep+file)
+        # print(file)
+
+    # extract files from filedir
+    for file in list_file:
+        if ume == "UME_SUL":
+            zipFileName = config_data['SRC_UME']['CpuLoad2G3G'][0]['prefix_fname_sul']
+        elif ume == "UME_PUMA":
+            zipFileName = config_data['SRC_UME']['CpuLoad2G3G'][0]['prefix_fname_puma']
+        else:
+            zipFileName = config_data['SRC_UME']['CpuLoad2G3G'][0]['prefix_fname_kal']
+        # print(filedatetime)
+        pattern = zipFileName+'_'+filedatetime
+        # print(filename)
+        result = re.search(pattern+'.+', file)
+        if result:
+            # print(result.group(0))
+            filename = result.group(0)
+            print('Extracting file '+filename)
+            with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
+                zip_ref.extractall(extract_to_dir+os.sep)
+                print("File "+filename+" telah di extract ke "+extract_to_dir)
+
+    # delete unneeded files
+    for file in os.listdir(extract_to_dir):
+        result = re.search('.+kpis.+', file)
+        if result:
+            # print(result.group(0))
+            # delete file kpis in extract_to_dir
+            kpis_files = result.group(0)
+            os.remove(extract_to_dir+os.sep+kpis_files)
+
+
+def processing_raw_data_4g(ume):
+    curdir = setCurDir()
+    config_data = readConfigFile()
+
+    dirdate = (datetime.today() - timedelta(hours=1,
+               minutes=25)).strftime('%Y-%m-%d')
+    delta_hour = (datetime.today() - timedelta(hours=1, minutes=25))
+    filedate = (delta_hour).strftime('%Y%m%d')
+    last_quarter_minute = 15*(delta_hour.minute//15)
+    qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H%M')
+    filedatetime = filedate + qtime
+
+    filedir = config_data['SRC_UME']['CpuLoad4G'][0]['src_dir'] + \
+        os.sep + dirdate
+    extract_to_dir = curdir+os.sep+ume+os.sep+'Cpu'+os.sep+'4G'
+
+    # change directory to filedir directory
+    os.chdir(filedir)
+    # list all files inside filedir directory
+    list_file = os.listdir(filedir)
+
+    # delete all files under dir band
+    for file in os.listdir(extract_to_dir):
+        # shutil.rmtree(file)
+        os.remove(extract_to_dir+os.sep+file)
+        # print(file)
+
+    # extract files from filedir
+    for file in list_file:
+        if ume == "UME_SUL":
+            zipFileName = config_data['SRC_UME']['CpuLoad4G'][0]['prefix_fname_sul']
+        elif ume == "UME_KAL":
+            zipFileName = config_data['SRC_UME']['CpuLoad4G'][0]['prefix_fname_kal']
+        elif ume == "UME_PUMA":
+            zipFileName = config_data['SRC_UME']['CpuLoad4G'][0]['prefix_fname_puma']
+
+        # print(filedatetime)
+        pattern = zipFileName+'_'+filedatetime
+        # print(pattern)
+        result = re.search(pattern+'.+', file)
+        if result:
+            # print(result.group(0))
+            filename = result.group(0)
+            print('Extracting file '+filename)
+            with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
+                zip_ref.extractall(extract_to_dir+os.sep)
+                print("File "+filename+" telah di extract ke "+extract_to_dir)
+
+    # delete unneeded files
+    for file in os.listdir(extract_to_dir):
+        result = re.search('.+kpis.+', file)
+        if result:
+            # print(result.group(0))
+            # delete file kpis in extract_to_dir
+            kpis_files = result.group(0)
+            os.remove(extract_to_dir+os.sep+kpis_files)
+
+
+def setDfCpuLoad2gUme(ume):
+    curdir = setCurDir()
+
+    data_dir = curdir+os.sep+ume+os.sep+'Cpu'+os.sep+'2G3G'
+
     df_result = pd.DataFrame()
 
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
-        # change directory to filedir directory
-        os.chdir(filedir)
-        # list all files inside filedir directory
-        list_file = os.listdir(filedir)
 
-        # delete all files under dir band
-        for file in os.listdir(extract_to_dir):
-            # shutil.rmtree(file)
-            os.remove(extract_to_dir+os.sep+file)
-            # print(file)
-
-        # extract files from filedir
-        for file in list_file:
-            if ume == "UME_SUL":
-                zipFileName = config_data['SRC_UME']['CpuLoad2G3G'][0]['prefix_fname_sul']
-            elif ume == "UME_PUMA":
-                zipFileName = config_data['SRC_UME']['CpuLoad2G3G'][0]['prefix_fname_puma']
-            else:
-                zipFileName = config_data['SRC_UME']['CpuLoad2G3G'][0]['prefix_fname_kal']
-            # print(filedatetime)
-            pattern = zipFileName+'_'+filedatetime
-            # print(filename)
-            result = re.search(pattern+'.+', file)
-            if result:
-                # print(result.group(0))
-                filename = result.group(0)
-                print('Extracting file '+filename)
-                with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
-                    zip_ref.extractall(extract_to_dir+os.sep)
-                    print("File "+filename+" telah di extract ke "+extract_to_dir)
-
-        # delete unneeded files
-        for file in os.listdir(extract_to_dir):
-            result = re.search('.+kpis.+', file)
-            if result:
-                # print(result.group(0))
-                # delete file kpis in extract_to_dir
-                kpis_files = result.group(0)
-                os.remove(extract_to_dir+os.sep+kpis_files)
+        # processing raw data
+        # processing_raw_data_2g(ume)
 
         # set dataframe process
-        for file in os.listdir(extract_to_dir):
+        for file in os.listdir(data_dir):
             # print(file)
-            df_res = pd.read_csv(extract_to_dir+os.sep+file)
+            df_res = pd.read_csv(data_dir+os.sep+file)
             df_res['GRANULARITY'] = 900
             # set tech
             df_res['tech'] = np.where(
@@ -103,67 +172,20 @@ def setDfCpuLoad2gUme(ume):
 
 def setDfCpuLoad4gUme(ume):
     curdir = setCurDir()
-    config_data = readConfigFile()
 
-    dirdate = (datetime.today() - timedelta(hours=1,
-               minutes=25)).strftime('%Y-%m-%d')
-    delta_hour = (datetime.today() - timedelta(hours=1, minutes=25))
-    filedate = (delta_hour).strftime('%Y%m%d')
-    last_quarter_minute = 15*(delta_hour.minute//15)
-    qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H%M')
-    filedatetime = filedate + qtime
-
-    filedir = config_data['SRC_UME']['CpuLoad4G'][0]['src_dir'] + \
-        os.sep + dirdate
-    extract_to_dir = curdir+os.sep+ume+os.sep+'Cpu'+os.sep+'4G'
+    data_dir = curdir+os.sep+ume+os.sep+'Cpu'+os.sep+'4G'
 
     df_result = pd.DataFrame()
 
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
-        # change directory to filedir directory
-        os.chdir(filedir)
-        # list all files inside filedir directory
-        list_file = os.listdir(filedir)
 
-        # delete all files under dir band
-        for file in os.listdir(extract_to_dir):
-            # shutil.rmtree(file)
-            os.remove(extract_to_dir+os.sep+file)
+        # processing raw data
+        # processing_raw_data_4g(ume)
+
+        # set dataframe process
+        for file in os.listdir(data_dir):
             # print(file)
-
-        # extract files from filedir
-        for file in list_file:
-            if ume == "UME_SUL":
-                zipFileName = config_data['SRC_UME']['CpuLoad4G'][0]['prefix_fname_sul']
-            elif ume == "UME_KAL":
-                zipFileName = config_data['SRC_UME']['CpuLoad4G'][0]['prefix_fname_kal']
-            elif ume == "UME_PUMA":
-                zipFileName = config_data['SRC_UME']['CpuLoad4G'][0]['prefix_fname_puma']
-
-            # print(filedatetime)
-            pattern = zipFileName+'_'+filedatetime
-            # print(pattern)
-            result = re.search(pattern+'.+', file)
-            if result:
-                # print(result.group(0))
-                filename = result.group(0)
-                print('Extracting file '+filename)
-                with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
-                    zip_ref.extractall(extract_to_dir+os.sep)
-                    print("File "+filename+" telah di extract ke "+extract_to_dir)
-
-        # delete unneeded files
-        for file in os.listdir(extract_to_dir):
-            result = re.search('.+kpis.+', file)
-            if result:
-                # print(result.group(0))
-                # delete file kpis in extract_to_dir
-                kpis_files = result.group(0)
-                os.remove(extract_to_dir+os.sep+kpis_files)
-
-        for file in os.listdir(extract_to_dir):
-            # print(file)
-            df_res = pd.read_csv(extract_to_dir+os.sep+file)
+            df_res = pd.read_csv(data_dir+os.sep+file)
             df_res['GRANULARITY'] = 900
             df_res['tech'] = '4G '
             df_res['OSS'] = ume
@@ -178,35 +200,19 @@ def setDfCpuLoad4gUme(ume):
                 str) + df_res['JAM'].astype(str)
             # print(df_res['COLLECTTIME'])
 
-            if ume == "UME_SUL":
-                df_result = df_res[
-                    [
-                        'COLLECTTIME', 'GRANULARITY', 'SubnetWork ID', 'eNodeBId', 'OSS', 'tech', 'Peak CPU Utilization Rate of ENB CC Board(%)', 'Average CPU Utilization Rate of ENB CC Board(%)'
-                    ]
+            df_result = df_res[
+                [
+                    'COLLECTTIME', 'GRANULARITY', 'SubnetWork ID', 'eNodeBId', 'OSS', 'tech', 'Peak CPU Utilization Rate of ENB CC Board(%)', 'Average CPU Utilization Rate of ENB CC Board(%)'
                 ]
-                df_result.rename(columns={
-                    'SubnetWork ID': 'CONTROLLERID', 'eNodeBId': 'SITEID', 'Peak CPU Utilization Rate of ENB CC Board(%)': 'max_ratio_cpu', 'Average CPU Utilization Rate of ENB CC Board(%)': 'mean_ratio_cpu'
-                }, inplace=True)
-            elif ume == "UME_PUMA":
-                df_result = df_res[
-                    [
-                        'COLLECTTIME', 'GRANULARITY', 'SubnetWork ID', 'eNodeBId', 'OSS', 'tech', 'Peak CPU Utilization Rate of ENB CC Board(%)', 'Average CPU Utilization Rate of ENB CC Board(%)'
-                    ]
-                ]
-                df_result.rename(columns={
-                    'SubnetWork ID': 'CONTROLLERID', 'eNodeBId': 'SITEID', 'Peak CPU Utilization Rate of ENB CC Board(%)': 'max_ratio_cpu', 'Average CPU Utilization Rate of ENB CC Board(%)': 'mean_ratio_cpu'
-                }, inplace=True)
-            elif ume == "UME_KAL":
-                df_result = df_res[
-                    [
-                        'COLLECTTIME', 'GRANULARITY', 'SubnetWork ID', 'eNodeBId', 'OSS', 'tech', 'Peak CPU Utilization Rate of ENB CC Board(%)', 'Average CPU Utilization Rate of ENB CC Board(%)'
-                    ]
-                ]
-                df_result.rename(columns={
-                    'SubnetWork ID': 'CONTROLLERID', 'eNodeBId': 'SITEID', 'Peak CPU Utilization Rate of ENB CC Board(%)': 'max_ratio_cpu', 'Average CPU Utilization Rate of ENB CC Board(%)': 'mean_ratio_cpu'
-                }, inplace=True)
-            else:
-                print("Ume Value Either UME_SUL or UME_KAL")
+            ]
+
+            df_result.rename(columns={
+                'SubnetWork ID': 'CONTROLLERID', 'eNodeBId': 'SITEID', 'Peak CPU Utilization Rate of ENB CC Board(%)': 'max_ratio_cpu', 'Average CPU Utilization Rate of ENB CC Board(%)': 'mean_ratio_cpu'
+            }, inplace=True)
+
+
+    else:
+        print("Ume Value Either UME_SUL or UME_KAL or UME_PUMA")
 
     df_result['max_ratio_cpu'] = df_result['max_ratio_cpu'].str.rstrip(
         '%').astype('float')/100
