@@ -9,10 +9,9 @@ from datetime import datetime, timedelta
 from add_func import export_to_csv, setCurDir, readConfigFile
 
 
-def setDfAvailability2gUme(ume):
+def processing_raw_data_2g(ume):
     curdir = setCurDir()
     config_data = readConfigFile()
-    current_date = datetime.today().strftime('%Y-%m-%d')
     dirdate = (datetime.today() - timedelta(hours=1,
                                             minutes=25)).strftime('%Y-%m-%d')
     delta_hour = (datetime.today() - timedelta(hours=1, minutes=25))
@@ -26,53 +25,131 @@ def setDfAvailability2gUme(ume):
     extract_to_dir = curdir+os.sep+ume+os.sep + \
         'Trf_Thp_Paging_Avail_Pyld'+os.sep+'2G'
 
+    # change directory to filedir directory
+    os.chdir(filedir)
+    # list all files inside filedir directory
+    list_file = os.listdir(filedir)
+
+    # delete all files under dir band
+    for file in os.listdir(extract_to_dir):
+        # shutil.rmtree(file)
+        os.remove(extract_to_dir+os.sep+file)
+        # print(file)
+
+    # extract files from filedir
+    for file in list_file:
+        if ume == "UME_SUL":
+            zipFileName = config_data['SRC_UME']['Avail2G'][0]['prefix_fname_sul']
+        elif ume == "UME_KAL":
+            zipFileName = config_data['SRC_UME']['Avail2G'][0]['prefix_fname_kal']
+        else:
+            zipFileName = config_data['SRC_UME']['Avail2G'][0]['prefix_fname_puma']
+        # print(filedatetime)
+        pattern = zipFileName+'_'+filedatetime
+        # print(pattern)
+        result = re.search(pattern+'.+', file)
+        if result:
+            print(result.group(0))
+            filename = result.group(0)
+            print('Extracting file '+filename)
+            with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
+                zip_ref.extractall(extract_to_dir+os.sep)
+                print("File "+filename+" telah di extract ke "+extract_to_dir)
+
+    # delete unneeded files
+    for file in os.listdir(extract_to_dir):
+        result = re.search('.+kpis.+', file)
+        if result:
+            # print(result.group(0))
+            # delete file kpis in extract_to_dir
+            kpis_files = result.group(0)
+            os.remove(extract_to_dir+os.sep+kpis_files)
+
+
+def processing_raw_data_4g(ume, band):
+    curdir = setCurDir()
+    config_data = readConfigFile()
+
+    dirdate = (datetime.today() - timedelta(hours=1,
+                                            minutes=25)).strftime('%Y-%m-%d')
+    delta_hour = (datetime.today() - timedelta(hours=1, minutes=25))
+    filedate = (delta_hour).strftime('%Y%m%d')
+    last_quarter_minute = 15*(delta_hour.minute//15)
+    qtime = delta_hour.replace(minute=last_quarter_minute).strftime('%H%M')
+    filedatetime = filedate + qtime
+    current_date = datetime.today().strftime('%Y-%m-%d')
+    filedir = config_data['SRC_UME']['Avail4G'][0]['src_dir'] + \
+        os.sep + dirdate
+    extract_to_dir = curdir+os.sep+ume+os.sep + \
+        'Trf_Thp_Paging_Avail_Pyld'+os.sep+'4G'+os.sep+band
+
+    # change directory to filedir directory
+    os.chdir(filedir)
+    # list all files inside filedir directory
+    list_file = os.listdir(filedir)
+
+    # delete all files under dir band
+    for file in os.listdir(extract_to_dir):
+        # shutil.rmtree(file)
+        os.remove(extract_to_dir+os.sep+file)
+        # print(file)
+
+    # extract files from filedir
+    for file in list_file:
+        if band == "FDD":
+            if ume == "UME_SUL":
+                zipFileName = config_data['SRC_UME']['Avail4G'][0]['prefix_fname_fdd_sul']
+            elif ume == "UME_KAL":
+                zipFileName = config_data['SRC_UME']['Avail4G'][0]['prefix_fname_fdd_kal']
+            else:
+                zipFileName = config_data['SRC_UME']['Avail4G'][0]['prefix_fname_fdd_puma']
+        else:
+            if ume == "UME_SUL":
+                zipFileName = config_data['SRC_UME']['Avail4G'][0]['prefix_fname_tdd_sul']
+            elif ume == "UME_KAL":
+                zipFileName = config_data['SRC_UME']['Avail4G'][0]['prefix_fname_tdd_kal']
+            else:
+                zipFileName = config_data['SRC_UME']['Avail4G'][0]['prefix_fname_tdd_puma']
+        # print(filedatetime)
+        pattern = zipFileName+'_'+filedatetime
+        # print(pattern)
+        result = re.search(pattern+'.+', file)
+        if result:
+            # print(result.group(0))
+            filename = result.group(0)
+            print('Extracting file '+filename)
+            with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
+                zip_ref.extractall(extract_to_dir+os.sep)
+                print("File "+filename+" telah di extract ke "+extract_to_dir)
+
+    # delete unneeded files
+    for file in os.listdir(extract_to_dir):
+        result = re.search('.+kpis.+', file)
+        if result:
+            # print(result.group(0))
+            # delete file kpis in extract_to_dir
+            kpis_files = result.group(0)
+            os.remove(extract_to_dir+os.sep+kpis_files)
+
+
+def setDfAvailability2gUme(ume):
+    curdir = setCurDir()
+    current_date = datetime.today().strftime('%Y-%m-%d')
+
+    data_dir = curdir+os.sep+ume+os.sep + \
+        'Trf_Thp_Paging_Avail_Pyld'+os.sep+'2G'
+
     df_result = pd.DataFrame()
 
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
-        # change directory to filedir directory
-        os.chdir(filedir)
-        # list all files inside filedir directory
-        list_file = os.listdir(filedir)
 
-        # delete all files under dir band
-        for file in os.listdir(extract_to_dir):
-            # shutil.rmtree(file)
-            os.remove(extract_to_dir+os.sep+file)
-            # print(file)
-
-        # extract files from filedir
-        for file in list_file:
-            if ume == "UME_SUL":
-                zipFileName = config_data['SRC_UME']['Avail2G'][0]['prefix_fname_sul']
-            elif ume == "UME_KAL":
-                zipFileName = config_data['SRC_UME']['Avail2G'][0]['prefix_fname_kal']
-            else:
-                zipFileName = config_data['SRC_UME']['Avail2G'][0]['prefix_fname_puma']
-            # print(filedatetime)
-            pattern = zipFileName+'_'+filedatetime
-            # print(pattern)
-            result = re.search(pattern+'.+', file)
-            if result:
-                print(result.group(0))
-                filename = result.group(0)
-                print('Extracting file '+filename)
-                with zipfile.ZipFile(filedir+os.sep+filename, 'r') as zip_ref:
-                    zip_ref.extractall(extract_to_dir+os.sep)
-                    print("File "+filename+" telah di extract ke "+extract_to_dir)
-
-        # delete unneeded files
-        for file in os.listdir(extract_to_dir):
-            result = re.search('.+kpis.+', file)
-            if result:
-                # print(result.group(0))
-                # delete file kpis in extract_to_dir
-                kpis_files = result.group(0)
-                os.remove(extract_to_dir+os.sep+kpis_files)
+        # processing raw data
+        processing_raw_data_2g(ume)
 
         # set dataframe process
-        for file in os.listdir(extract_to_dir):
+        for file in os.listdir(data_dir):
             # print(file)
-            df_res = pd.read_csv(extract_to_dir+os.sep+file)
+            df_res = pd.read_csv(data_dir+os.sep+file)
             df_res['GRANULARITY'] = 900
             df_res['tech'] = '2G'
             df_res['OSS'] = ume
@@ -116,7 +193,7 @@ def setDfAvailability2gUme(ume):
                 }, inplace=True)
             # return df_res
     else:
-        print('Enter either UME_SUL or UME_KAL')
+        print('Enter either UME_SUL or UME_KAL or UME_PUMA')
 
     df_result['availability'] = df_result['availability'].str.rstrip(
         '%').astype('float')/100
@@ -190,7 +267,7 @@ def setDfAvailability4gUme(ume, band):
                 # delete file kpis in extract_to_dir
                 kpis_files = result.group(0)
                 os.remove(extract_to_dir+os.sep+kpis_files)
-
+        # set dataframe process
         for file in os.listdir(extract_to_dir):
             # print(file)
             df_res = pd.read_csv(extract_to_dir+os.sep+file)
