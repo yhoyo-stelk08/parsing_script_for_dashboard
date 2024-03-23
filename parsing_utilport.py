@@ -161,6 +161,3 @@ def counting_utilport():
     df_pivot = np.round(pd.pivot_table(df_utilport, values=[
                         'mean_tx', 'mean_rx'], index=['Remark'], aggfunc=np.max), 2)
     return df_pivot
-
-# df = parsing_utilport()
-# print(df)
