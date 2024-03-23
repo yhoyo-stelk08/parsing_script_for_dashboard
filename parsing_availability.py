@@ -142,7 +142,7 @@ def setDfAvailability2gUme(ume):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # processing raw data
-        # processing_raw_data_2g(ume)
+        processing_raw_data_2g(ume)
 
         # set dataframe process
         for file in os.listdir(data_dir):
@@ -211,7 +211,7 @@ def setDfAvailability4gUme(ume, band):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # processing raw data
-        # processing_raw_data_4g(ume, band)
+        processing_raw_data_4g(ume, band)
 
         # set dataframe process
         for file in os.listdir(data_dir):
@@ -385,7 +385,3 @@ def parsing_availability():
         ]
     ]
     return df_result
-
-
-df_res = counting_availability('NSA')
-print(df_res)
