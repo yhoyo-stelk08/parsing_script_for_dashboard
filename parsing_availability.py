@@ -348,7 +348,7 @@ def counting_availability(item):
 
 def parsing_availability():
     curdir = setCurDir()
-    df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_cell.csv', thousands=',')
+    df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_site.csv', thousands=',')
 
     df_data_poi['CI'] = df_data_poi['CI'].apply(
         lambda x: convert_site_cell(x, 'Linux'))
@@ -362,12 +362,12 @@ def parsing_availability():
     df_ume_puma = joining_df_2g4gUme("UME_PUMA")
     df_concat = pd.concat([df_ume_sul, df_ume_kal, df_ume_puma])
 
-    df_result['SITEID'].fillna(0, inplace=True)
-    df_result['CELLID'].fillna(0, inplace=True)
+    df_concat['SITEID'].fillna(0, inplace=True)
+    df_concat['CELLID'].fillna(0, inplace=True)
 
-    df_result['SITEID'] = df_result['SITEID'].apply(
+    df_concat['SITEID'] = df_concat['SITEID'].apply(
         lambda x: convert_site_cell(x, 'Linux'))
-    df_result['CELLID'] = df_result['CELLID'].apply(
+    df_concat['CELLID'] = df_concat['CELLID'].apply(
         lambda x: convert_site_cell(x, 'Linux'))
 
     df_concat['primKey'] = df_concat['CONTROLLERID'].astype(
@@ -382,5 +382,5 @@ def parsing_availability():
 
 
 # df_res = setDfAvailability4gUme('UME_PUMA', 'FDD')
-# df_res = parsing_availability()
-# print(df_res)
+df_res = parsing_availability()
+print(df_res)
