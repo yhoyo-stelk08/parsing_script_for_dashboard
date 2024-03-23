@@ -279,7 +279,7 @@ def setDfAvailability4gUme(ume, band):
     return df_result
 
 
-def joining_df_2g3g4gUme(ume):
+def joining_df_2g4gUme(ume):
     df_avail_2g = setDfAvailability2gUme(ume)
     df_avail_fdd = setDfAvailability4gUme(ume, "FDD")
     df_avail_tdd = setDfAvailability4gUme(ume, "TDD")
@@ -312,9 +312,9 @@ def parsing_availability():
     df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_cell.csv', thousands=',')
     df_data_poi['primKey'] = df_data_poi['CONTROLLER_NUM'].astype(
         str)+df_data_poi['SITE_NUM'].astype(str)+df_data_poi['CI'].astype(str)
-    df_ume_sul = joining_df_2g3g4gUme("UME_SUL")
-    df_ume_kal = joining_df_2g3g4gUme("UME_KAL")
-    df_ume_puma = joining_df_2g3g4gUme("UME_PUMA")
+    df_ume_sul = joining_df_2g4gUme("UME_SUL")
+    df_ume_kal = joining_df_2g4gUme("UME_KAL")
+    df_ume_puma = joining_df_2g4gUme("UME_PUMA")
     df_concat = pd.concat([df_ume_sul, df_ume_kal, df_ume_puma])
     df_concat['primKey'] = df_concat['CONTROLLERID'].astype(
         str)+df_concat['SITEID'].astype(str)+df_concat['CELLID'].astype(str)
