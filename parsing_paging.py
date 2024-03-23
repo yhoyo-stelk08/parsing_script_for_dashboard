@@ -77,7 +77,7 @@ def setDfPaging2gUme(ume):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # processing raw data
-        # processing_raw_data(ume)
+        processing_raw_data(ume)
 
         # set dataframe process
         for file in os.listdir(data_dir):
@@ -156,15 +156,15 @@ def counting_paging(item):
     df_merge = df_paging.merge(df_data_poi, on='primKey', how='inner')
     if item == "poi_name":
         df_pivot = np.round(pd.pivot_table(
-                                df_merge,
-                                values=['paging', 'POI_LONGITUDE', 'POI_LATITUDE'],
-                                index=[
-                                    'POI_NAME',],
-                                aggfunc={
-                                    'paging': np.sum,
-                                    'POI_LONGITUDE': 'first',
-                                    'POI_LATITUDE': 'first'
-                                }), 2)
+            df_merge,
+            values=['paging', 'POI_LONGITUDE', 'POI_LATITUDE'],
+            index=[
+                'POI_NAME',],
+            aggfunc={
+                'paging': np.sum,
+                'POI_LONGITUDE': 'first',
+                'POI_LATITUDE': 'first'
+            }), 2)
     else:
         df_pivot = np.round(pd.pivot_table(
             df_merge, values=['paging'], index=['NSA'], aggfunc=np.sum), 2)
