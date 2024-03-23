@@ -134,7 +134,7 @@ def setDfCpuLoad2gUme(ume):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # processing raw data
-        # processing_raw_data_2g(ume)
+        processing_raw_data_2g(ume)
 
         # set dataframe process
         for file in os.listdir(data_dir):
@@ -180,7 +180,7 @@ def setDfCpuLoad4gUme(ume):
     if ume == "UME_SUL" or ume == "UME_KAL" or ume == "UME_PUMA":
 
         # processing raw data
-        # processing_raw_data_4g(ume)
+        processing_raw_data_4g(ume)
 
         # set dataframe process
         for file in os.listdir(data_dir):
@@ -222,29 +222,19 @@ def setDfCpuLoad4gUme(ume):
 
 
 def parsing_cpu_load_2g():
-    # No More EMS #
-    # df_ems5 = setDfCpuLoad2g3gEms("EMS5")
-    # df_ems6 = setDfCpuLoad2g3gEms("EMS6")
-    # df_ems7 = setDfCpuLoad2g3gEms("EMS7")
     df_ume_sul = setDfCpuLoad2gUme("UME_SUL")
     df_ume_puma = setDfCpuLoad2gUme("UME_PUMA")
     df_ume_kal = setDfCpuLoad2gUme("UME_KAL")
 
-    # df_result = pd.concat([df_ems5,df_ems6,df_ems7,df_ume_sul,df_ume_kal])
     df_result = pd.concat([df_ume_sul, df_ume_puma, df_ume_kal])
     return df_result
 
 
 def parsing_cpu_load_4g():
-    # No More EMS #
-    # df_ems5 = joining_df_4g_ems("EMS5")
-    # df_ems6 = joining_df_4g_ems("EMS6")
-    # df_ems7 = joining_df_4g_ems("EMS7")
     df_ume_kal = setDfCpuLoad4gUme("UME_KAL")
     df_ume_sul = setDfCpuLoad4gUme("UME_SUL")
     df_ume_puma = setDfCpuLoad4gUme("UME_PUMA")
 
-    # df_result = pd.concat([df_ems5,df_ems6,df_ems7,df_ume_kal,df_ume_sul])
     df_result = pd.concat([df_ume_kal, df_ume_puma, df_ume_sul])
     return df_result
 
@@ -281,23 +271,3 @@ def counting_cpu_load_4g():
                         'max_ratio_cpu', 'mean_ratio_cpu'], index=['SITE_NAME', 'REGION'], aggfunc=np.max), 2)
     df_result = df_pivot.reset_index()
     return df_result
-
-# df = parsing_cpu_load_2g3g()
-# df = setDfCpuLoad2g3gUme("UME_SUL")
-# print(df)
-# df1 = parsing_cpu_load_4g()
-# print(df1)
-# df =joining_df_4g_ems("EMS5")
-# print(df)
-# df =joining_df_4g_ems("EMS7")
-# print(df)
-# df =setDfCpuLoad4gUme("UME_KAL")
-# print(df)
-# df =setDfCpuLoad4gUme("UME_SUL")
-# print(df)
-# df = parsing_cpu_load_4g()
-# print(df)
-# export_to_csv(df,'all_cpuload_4g.csv')
-# setDfCpuLoad2g3gUme("UME_KAL")
-# print(df)
-# export_to_csv(df,'cpu_load_ems5.csv')
