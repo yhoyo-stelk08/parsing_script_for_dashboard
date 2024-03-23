@@ -7,7 +7,7 @@ from parsing_availability import parsing_availability
 from parsing_payload import parsing_payload
 from parsing_thp import parsing_thp
 from parsing_paging import parsing_paging
-from parsing_cpu_load import parsing_cpu_load_2g3g,parsing_cpu_load_4g
+from parsing_cpu_load import parsing_cpu_load_2g,parsing_cpu_load_4g
 from parsing_utilport import parsing_utilport
 
 def main_parser(meas):
@@ -21,7 +21,7 @@ def main_parser(meas):
 	elif meas == "paging" :
 		df_meas = parsing_paging()
 	elif meas == "cpu_load_2g3g" :
-		df_meas = parsing_cpu_load_2g3g()
+		df_meas = parsing_cpu_load_2g()
 	elif meas == "cpu_load_4g" :
 		df_meas = parsing_cpu_load_4g()
 	elif meas == "portutil" :
