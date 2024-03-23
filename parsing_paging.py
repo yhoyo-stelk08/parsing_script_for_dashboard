@@ -125,6 +125,15 @@ def parsing_paging():
     df_ume_kal = setDfPaging2gUme("UME_KAL")
 
     df_result = pd.concat([df_ume_puma, df_ume_sul, df_ume_kal])
+
+    df_result['SITEID'].fillna(0, inplace=True)
+    df_result['CELLID'].fillna(0, inplace=True)
+
+    df_result['SITEID'] = df_result['SITEID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+    df_result['CELLID'] = df_result['CELLID'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
     df_result['primKey'] = df_result['CONTROLLERID'].astype(
         str)+df_result['SITEID'].astype(str)+df_result['CELLID'].astype(str)
     return df_result
@@ -134,13 +143,17 @@ def counting_paging(item):
     curdir = setCurDir()
     # print(curdir)
     df_paging = parsing_paging()
-    df_paging['sitePrimKey'] = df_paging['CONTROLLERID'].astype(
-        str)+df_paging['SITEID'].astype(str)
+
     df_data_poi = pd.read_csv(curdir+os.sep+'data_poi_site.csv')
-    df_data_poi['sitePrimKey'] = df_data_poi['CONTROLLER_NUM'].astype(
-        str)+df_data_poi['SITE_NUM'].astype(str)
+
+    df_data_poi['CI'] = df_data_poi['CI'].apply(
+        lambda x: convert_site_cell(x, 'Linux'))
+
+    df_data_poi['primKey'] = df_data_poi['CONTROLLER_NUM'].astype(
+        str)+df_data_poi['SITE_NUM'].astype(str)+df_data_poi['CI'].astype(str)
+
     # return df_data_poi
-    df_merge = df_paging.merge(df_data_poi, on='sitePrimKey', how='inner')
+    df_merge = df_paging.merge(df_data_poi, on='primKey', how='inner')
     if item == "poi_name":
         df_pivot = np.round(pd.pivot_table(df_merge, values=['paging'], index=[
                             'POI_NAME', 'POI_LONGITUDE', 'POI_LATITUDE'], aggfunc=np.sum), 2)
